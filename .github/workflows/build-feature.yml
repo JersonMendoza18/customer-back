@@ -1,13 +1,15 @@
 name: build and test feature branch
 on:
-  push:
-    branches:
-      - feature/*
+  pull_request:
+    branches: [ develop ]
+    types: [opened, reopened ]
 jobs:
   build-feature:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }} #Descargar rama que disparo el pr 
       - name: pull and checkout from git repository
         run : |
           echo "pulling and checking out from git repository"
@@ -18,7 +20,15 @@ jobs:
           distribution: 'temurin' #Se 'Supported distribution' for avialable options
           java-version: '17'
 
+      - name: Cache Maven dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
       - name: build with maven
         run: | 
-          mvn clean install
+          mvn clean test package
           echo "build with maven"
