@@ -9,7 +9,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          ref: ${{ github.event.pull_request.head.sha }} #Descargar rama que disparo el pr 
+          ref: ${{ github.event.pull_request.head.sha }} #Descargar rama que disparo el pr
       - name: pull and checkout from git repository
         run : |
           echo "pulling and checking out from git repository"
