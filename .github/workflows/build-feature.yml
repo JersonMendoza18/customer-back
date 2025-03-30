@@ -62,6 +62,12 @@ jobs:
       # ########################################################
       # # 2- Merge to development branch
       # ########################################################
+
+      - name: Fetch all remote branches
+        run: |
+         git fetch --all
+         git branch -a  # Opcional: para listar las ramas remotas y verificar que "actions/feature/advance-actions" está disponible
+
       - name: Merge to development branch
         if: ${{ success() }}
         run: |
