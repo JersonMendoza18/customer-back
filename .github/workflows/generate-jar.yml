@@ -50,7 +50,7 @@ jobs:
         #The "SNAPSHOT" term means that the build is a snapshot of your code at a given time    
         #The --batch-mode flag indicates that the build should be run without any user interaction
         #(Avoid caching versions of your own code)The --update-snapshots flag tells Maven to check for any updated snapshots of dependencies and use those instead of the versions specified in the project's pom.xml file. 
-        #The package argument tells Maven to package the project into a distributable format, such as a JAR or WAR file.
+        #The package argument tells Maven to package the project into a distributable format, such as a JAR or WAR file. 
         run: |
            mvn clean test package -DskipTests=true --batch-mode --update-snapshots      
            echo ls -R target/
