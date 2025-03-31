@@ -39,7 +39,7 @@ jobs:
           java-version: '17'
 
       - name: Cache local Maven repository
-        uses: actions/cache@v4
+        uses: actions/cache@v3
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -50,7 +50,7 @@ jobs:
         #The "SNAPSHOT" term means that the build is a snapshot of your code at a given time    
         #The --batch-mode flag indicates that the build should be run without any user interaction
         #(Avoid caching versions of your own code)The --update-snapshots flag tells Maven to check for any updated snapshots of dependencies and use those instead of the versions specified in the project's pom.xml file. 
-        #The package argument tells Maven to package the project into a distributable format, such as a JAR or WAR file. 
+        #The package argument tells Maven to package the project into a distributable format, such as a JAR or WAR file.
         run: |
            mvn clean test package -DskipTests=true --batch-mode --update-snapshots      
            echo ls -R target/
@@ -62,7 +62,32 @@ jobs:
       ######################################################## 
       - name: Publish Package
         if: success()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
          name: artifactjar
-         path: ${{ github.workspace }}/target/${{ env.ARTIFACT_NAME }}
+         path: ${{ github.workspace }}/target/${{ env.ARTIFACT_NAME }}   
+
+
+      ######################################################## 
+      # 5- call checksum of artifact
+      ######################################################## 
+      - name: Verify SHA1sum
+        if: success()
+        id: cal_checksum_jar
+        run: |
+          ls -la ${{ github.workspace }}/target/        
+          SHA1=$(sha1sum ${{ github.workspace }}/target/$ARTIFACT_NAME | awk '{print $1}')
+          JSON=\''{"message": "publish artifact","artifact_name":"'"$ARTIFACT_NAME"'", "checksum": "'"$SHA1"'"}'\'
+          echo JSON_PAYLOAD=$(printf '%s\n' "$JSON")  >> $GITHUB_ENV
+
+      ######################################################## 
+      # 4- call deploy-artifact.yaml
+      #########################################################
+      - name: trigger deploy artifact
+        if: success()
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          event-type: deploy-artifact-event          
+          client-payload: ${{fromJSON(env.JSON_PAYLOAD) }}
