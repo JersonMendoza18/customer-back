@@ -3,6 +3,7 @@ package org.sotobotero.customer.controller;
 import org.sotobotero.customer.entities.Customer;
 import org.sotobotero.customer.repository.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -30,6 +31,20 @@ import org.springframework.web.bind.annotation.RequestBody;
 @Tag(name = "customer API", description = "customer API")
 @CrossOrigin(origins = "*")
 public class CustomerController {
+
+    @Value( "${db.password}" )
+    private String password;
+
+    @Operation(summary = "Test property")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Found the customers"),
+            @ApiResponse(responseCode = "404", description = "Not found the customers"),
+    })
+   @GetMapping("/testproperty")
+   public ResponseEntity<String> getTestValue() {    
+       return new ResponseEntity<>(password, HttpStatus.OK);
+   }
+
     // generate all methos for a rest appi with spring boot for a customer entity
     @Autowired
     private CustomerRepository prsRepository;
